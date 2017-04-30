@@ -128,5 +128,5 @@ if __name__== "__main__":
 
 	completeDf = spark.createDataFrame(finalFeatures, ['ip','maxScore','minScore','avgScore','lastScore','trendUp','trendDown','trueCount','dataSetCount','mostCommonCustomerHit','totalCustomersHit'] + customerList )
 	#Saving the csv off as well just because.
-	completeDf.write.csv("s3://daen-cyber/filteredSource/no1s9s5s/testFeature/featureEngineeringFull.csv",header=True)
+	completeDf.write.csv("s3://daen-cyber/filteredSource/no1s9s5s/testFeature/featureEngineering1.csv",header=True)
 
