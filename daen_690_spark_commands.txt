@@ -1,0 +1,50 @@
+pyspark
+
+lines = spark.read.csv("s3://daen-cyber/filteredSource/only5s",header = True)
+
+lines.count() #39729295
+
+#customers 39, 45, 69
+lines.filter((lines['61946c6104a8b546d04277468a9acd9ebc1bc8b0'] > 0) & 
+(lines['7ac90a3972ad4c297f08e73cd14a22fb27306c2e'] > 0) & (lines['bab3de2d071bb038af18151de993a616a5e4513f'] > 0)).count()#33995
+
+#customers 39, 45, 55, 69
+lines.filter((lines['61946c6104a8b546d04277468a9acd9ebc1bc8b0'] > 0) & (lines['7ac90a3972ad4c297f08e73cd14a22fb27306c2e'] > 0) & (lines['bab3de2d071bb038af18151de993a616a5e4513f'] > 0) & (lines['9bf2365b6fa388c60f182935b20d97993847af84'] > 0)).count() #30674
+
+#customer 55
+lines.filter(lines['9bf2365b6fa388c60f182935b20d97993847af84'] > 0).count() #
+
+#customer 27
+lines.filter(lines['3e395ee214748417a0310d4554bb1ad386f0b102'] > 0 ).count() #12248
+
+#customers 39, 45
+lines.filter((lines['61946c6104a8b546d04277468a9acd9ebc1bc8b0'] > 0) & (lines['7ac90a3972ad4c297f08e73cd14a22fb27306c2e'] > 0)).count() #41383
+
+#customer 39
+lines.filter(lines['61946c6104a8b546d04277468a9acd9ebc1bc8b0'] > 0 ).count() #158639
+
+#customer 45
+lines.filter(lines['7ac90a3972ad4c297f08e73cd14a22fb27306c2e'] > 0 ).count() #1038838
+
+#customer 77
+lines.filter(lines['61946c6104a8b546d04277468a9acd9ebc1bc8b0'] > 0 ).count() #158639
+
+#customers 12, 14, 44, 71, 93
+lines.filter((lines['07d5d0d8f59cd398a6beeb58a06d4c522a57f112'] > 0) & (lines['15b2b4e9d53d8a452901d2b85237273c25ddb56f'] > 0) & (lines['78ece5b199fcb42922ae21a2e8d7e0d7c66a59c3'] > 0) & (lines['c187edf633fe1d3d9644f25c7fa179136b3a1c68'] > 0) & 
+(lines['fadb2ec1b260c74064f4028638133c790086faa1'] > 0)).count() #13179
+
+#customers 14, 44, 93
+lines.filter((lines['15b2b4e9d53d8a452901d2b85237273c25ddb56f'] > 0) & (lines['78ece5b199fcb42922ae21a2e8d7e0d7c66a59c3'] > 0) &  
+(lines['fadb2ec1b260c74064f4028638133c790086faa1'] > 0)).count() #18904
+
+
+
+
+
+
+
+
+
+
+
+
