@@ -380,6 +380,32 @@ def ml_df2(x):
     features = Vectors.dense(y)
     return (label, features)
     
+def ml_df3(x):
+    y = list()
+    for key in x.asDict():
+        if key == 'ip':
+            pass
+        elif key == 'lastScore':
+            pass
+        elif key == 'mostCommonCustomerHit':
+            pass
+        elif key == 'avgScore':
+            pass
+        elif key == 'minScore':
+            pass
+        elif key == 'maxScore':
+            pass
+        else:
+            y.append(x[key])
+    if x.lastScore > 5.0:
+        label = 1.0
+    elif x.lastScore == 5.0:
+        label = 50.0
+    else:
+        label = 0.0
+    features = Vectors.dense(y)
+    return (label, features)
+    
 def ml_tree(targeted=False):
     try:
         df = spark.read.parquet('%s/ml/ml_full.parquet' % datastore)
@@ -410,6 +436,20 @@ def ml_tree2():
     print evaluator.evaluate(model.transform(df))
     print model.bestModel.featureImportances()
         
+def ml_tree3():
+    try:
+        df = spark.read.parquet('%s/ml/ml_feature_engineered_nofives.parquet' % datastore)
+    except:
+        df = spark.createDataFrame(data=spark.read.parquet('%s/featureEngineering.parquet' % datastore).rdd.map(lambda x : ml_df3(x)), schema=['label', 'features']).dropna()
+        df.filter(df.label <= 1.0).write.parquet(path='%s/ml/ml_feature_engineered_nofives.parquet' % datastore)
+    dt = DecisionTreeClassifier(maxDepth=2)
+    grid = ParamGridBuilder().addGrid(3, [0, 5]).build()
+    evaluator = MulticlassClassificationEvaluator()
+    cv = CrossValidator(estimator=dt, estimatorParamMaps=grid, evaluator=evaluator, numFolds=10)
+    model = cv.fit(df)
+    print evaluator.evaluate(model.transform(df))
+    print model.bestModel.featureImportances
+    
 def ml_rf(seed=90):
     try:
         df = spark.read.parquet('%s/ml/ml_full.parquet' % datastore)
@@ -438,6 +478,20 @@ def ml_rf2(seed=90):
     print evaluator.evaluate(model.transform(df))
     print model.bestModel.featureImportances()    
 
+def ml_rf3(seed=90):
+    try:
+        df = spark.read.parquet('%s/ml/ml_feature_engineered_nofives.parquet' % datastore)
+    except:
+        df = spark.createDataFrame(data=spark.read.parquet('%s/featureEngineering.parquet' % datastore).rdd.map(lambda x : ml_df3(x)), schema=['label', 'features']).dropna()
+        df.filter(df.label <= 1.0).write.parquet(path='%s/ml/ml_feature_engineered_nofives.parquet' % datastore)
+    rf = RandomForestClassifier(numTrees=30, maxDepth=5, seed=seed)
+    grid = ParamGridBuilder().addGrid(3, [0, 5]).build()
+    evaluator = MulticlassClassificationEvaluator()
+    cv = CrossValidator(estimator=rf, estimatorParamMaps=grid, evaluator=evaluator, numFolds=10)
+    model = cv.fit(df)
+    print evaluator.evaluate(model.transform(df))
+    print model.bestModel.featureImportances
+
 def ml_lr():
     try:
         df = spark.read.parquet('%s/ml/ml_full.parquet' % datastore)
@@ -464,6 +518,19 @@ def ml_lr2():
     model = cv.fit(df)
     print evaluator.evaluate(model.transform(df))
 
+def ml_lr3():
+    try:
+        df = spark.read.parquet('%s/ml/ml_feature_engineered_nofives.parquet' % datastore)
+    except:
+        df = spark.createDataFrame(data=spark.read.parquet('%s/featureEngineering.parquet' % datastore).rdd.map(lambda x : ml_df3(x)), schema=['label', 'features']).dropna()
+        df.filter(df.label <= 1.0).write.parquet(path='%s/ml/ml_feature_engineered_nofives.parquet' % datastore)
+    mlr = LogisticRegression(maxIter=10)
+    grid = ParamGridBuilder().addGrid(3, [0, 5]).build()
+    evaluator = BinaryClassificationEvaluator()
+    cv = CrossValidator(estimator=mlr, estimatorParamMaps=grid, evaluator=evaluator, numFolds=10)
+    model = cv.fit(df)
+    print evaluator.evaluate(model.transform(df))
+
 def ml_gbt(train_split=0.70, seed=90):
     try:
         df = spark.read.parquet('%s/ml/ml_feature_engineered.parquet' % datastore)
@@ -477,6 +544,20 @@ def ml_gbt(train_split=0.70, seed=90):
     model = cv.fit(df)
     print evaluator.evaluate(model.transform(df))
     print model.bestModel.featureImportances()
+
+def ml_gbt2(seed=90):
+    try:
+        df = spark.read.parquet('%s/ml/ml_feature_engineered_nofives.parquet' % datastore)
+    except:
+        df = spark.createDataFrame(data=spark.read.parquet('%s/featureEngineering.parquet' % datastore).rdd.map(lambda x : ml_df3(x)), schema=['label', 'features']).dropna()
+        df.filter(df.label <= 1.0).write.parquet(path='%s/ml/ml_feature_engineered_nofives.parquet' % datastore)
+    gbt = GBTClassifier(maxIter=5, maxDepth=2, seed=seed)
+    grid = ParamGridBuilder().addGrid(3, [0, 5]).build()
+    evaluator = MulticlassClassificationEvaluator()
+    cv = CrossValidator(estimator=gbt, estimatorParamMaps=grid, evaluator=evaluator, numFolds=10)
+    model = cv.fit(df)
+    print evaluator.evaluate(model.transform(df))
+    print model.bestModel.featureImportances
     
 if __name__ == '__main__':
     # Read-in the Dark^3 dataset as a csv file and include schema
